@@ -1,0 +1,25 @@
+{
+  "name": "owac",
+  "version": "1.0.0",
+  "description": "Offline Web App Creator",
+  "homepage": "https://github.com/PathriK/Offline-Web-App-Creator",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PathriK/Offline-Web-App-Creator.git"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "PathriK",
+  "license": "ISC",
+  "dependencies": {
+    "archiver": "^4.0.1",
+    "through2": "^3.0.1"
+  },
+  "bin": "./index.js",
+  "os": [
+    "win32"
+  ]
+}
