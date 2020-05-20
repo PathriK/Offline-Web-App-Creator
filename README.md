@@ -20,3 +20,20 @@ owac folderpath appname
 
 - `folderpath` can be relative
 - `appname` is optional. If not given, the folder name in the `folderpath` will be taken as App Name
+
+OR
+
+```shell
+owac
+```
+
+and the current directory should have a 'owac.rc' file in the following format:
+
+```json
+{
+  "name": "app",
+  "path": "src"
+}
+```
+
+**Note**: when using the '.rc' format of the command, both name and path are mandatory.
