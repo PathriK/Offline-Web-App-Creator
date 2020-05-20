@@ -11,6 +11,12 @@ const PREFIX = ';;;===,,, ';
 const { appName, appPath, appVer } = getConfig();
 console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
 
+const appPages = fs.readdirSync(appPath, { withFileTypes: true })
+    .filter(dirent => dirent.isDirectory())
+    .map(({ name }) => ({ name, path: path.join(appPath, name) }));
+
+const menuContent = getMenuContent(appPages);
+
 const output = fs.createWriteStream('./installer_dist.bat', {
     encoding: 'binary',
 });
@@ -33,12 +39,12 @@ const prefixed = batFile.pipe(lineUpdater(updater));
 
 prefixed.on('end', () => {
     console.log('Creating Zip and appending to Batch File');
-    zipApp(appPath, output);
+    zipApp(appPages, menuContent, output);
 });
 
 prefixed.pipe(output, { end: false });
 
-function zipApp(folder, output) {
+function zipApp(appPages, menuContent, output) {
     const archive = archiver('tar', { zlib: { level: 9 }, gzip: true });
 
     output.on('close', () => {
@@ -55,7 +61,10 @@ function zipApp(folder, output) {
 
     archive.pipe(output);
 
-    archive.directory(folder, false);
+    appPages.forEach(({path, name}) => archive.directory(path, name));
+
+    archive.append(menuContent, { name: 'menu.html' });
+    
     archive.file(__dirname + '/assets/CreateShortcut.vbs', { name: 'CreateShortcut.vbs' });
 
     archive.finalize();
@@ -127,4 +136,13 @@ function getRCConfig() {
         console.error(ex);
         process.exit(1);
     }
+}
+
+function getMenuContent(names) {
+    const hrefBuilder = (text, href) => `<a href="${href}">${text}</a>`;
+    const liBuilder = content => `<li>${content}</li>`;
+    const ulBuilder = content => `<ul>${content}</ul>`;
+    const liContents = names.map(({ name }) => hrefBuilder(name, `${name}/index.html`)).map(liBuilder).join('');
+    const ulContent = ulBuilder(liContents);
+    return `<html><head></head><body>${ulContent}</body></html>`;
 }

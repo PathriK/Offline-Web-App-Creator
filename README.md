@@ -6,13 +6,15 @@ _**NOTE**: Works only on Windows 10 that has 'tar' command. Windows 10 has 'tar'
 
 This tools zips a webapp folder and creates a single batch file that can be distributed to others. The zip is embedded inside the batch file itself. Upon running the batch file, the tool unzips the app to a folder inside Local App Data folder and creates a Chrome shortcut for it on Desktop.
 
-To install:
+**TO INSTALL:**
 
 ```shell
 npm i -g owac
 ```
 
-To Run:
+**Two Ways To Run:**
+
+1. Supply arguments. This has less feature:
 
 ```shell
 owac folderpath appname
@@ -21,7 +23,11 @@ owac folderpath appname
 - `folderpath` can be relative
 - `appname` is optional. If not given, the folder name in the `folderpath` will be taken as App Name
 
-OR
+*Note:*
+- Creates a simple `menu.html`file. That lists all the folders inside `folderpath`
+- The version is always `1.0.0`. It can not be changed and app can't be "re-installed"
+
+2. Using a config file:
 
 ```shell
 owac
@@ -37,6 +43,6 @@ and the current directory should have a 'owac.rc' file in the following format:
 }
 ```
 
-**Note**: 
-- The parameter version of the command uses version '1.0.0' and it can not be overriden.
+*Note:*
 - When using the '.rc' format of the command, everything is mandatory.
+- Similar to the 1st version, it creates a simple menu file
