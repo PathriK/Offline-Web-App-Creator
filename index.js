@@ -15,7 +15,9 @@ const appPages = fs.readdirSync(appPath, { withFileTypes: true })
     .filter(dirent => dirent.isDirectory())
     .map(({ name }) => ({ name, path: path.join(appPath, name) }));
 
-const menuContent = getMenuContent(appPages);
+const menuConfig = getMenuConfig(appName, appPages);
+
+const menuContent = getMenuContent(menuConfig);
 
 const output = fs.createWriteStream('./installer_dist.bat', {
     encoding: 'binary',
@@ -138,11 +140,17 @@ function getRCConfig() {
     }
 }
 
-function getMenuContent(names) {
+function getMenuConfig(appName, appPages) {
+    const config = { title: appName, items: [] };
+    config.items = appPages.map(({ name }) => ({ name, path: name }));
+    return config;
+}
+
+function getMenuContent({title, items}) {
     const hrefBuilder = (text, href) => `<a href="${href}">${text}</a>`;
     const liBuilder = content => `<li>${content}</li>`;
     const ulBuilder = content => `<ul>${content}</ul>`;
-    const liContents = names.map(({ name }) => hrefBuilder(name, `${name}/index.html`)).map(liBuilder).join('');
+    const liContents = items.map(({ name, path }) => hrefBuilder(name, `${path}/index.html`)).map(liBuilder).join('');
     const ulContent = ulBuilder(liContents);
-    return `<html><head></head><body>${ulContent}</body></html>`;
+    return `<html><head><title>${title}</title></head><body><h1>${title}</h1>${ulContent}</body></html>`;
 }
