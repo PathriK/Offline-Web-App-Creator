@@ -32,8 +32,11 @@ and the current directory should have a 'owac.rc' file in the following format:
 ```json
 {
   "name": "app",
-  "path": "src"
+  "path": "src",
+  "version": "1.0.0"
 }
 ```
 
-**Note**: when using the '.rc' format of the command, both name and path are mandatory.
+**Note**: 
+- The parameter version of the command uses version '1.0.0' and it can not be overriden.
+- When using the '.rc' format of the command, everything is mandatory.

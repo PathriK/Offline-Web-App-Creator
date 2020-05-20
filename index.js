@@ -8,8 +8,8 @@ const os = require('os');
 
 const PREFIX = ';;;===,,, ';
 
-const { appName, appPath } = getConfig();
-console.log(`appName: ${appName} | appPath: ${appPath}`);
+const { appName, appPath, appVer } = getConfig();
+console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
 
 const output = fs.createWriteStream('./installer_dist.bat', {
     encoding: 'binary',
@@ -27,7 +27,7 @@ batFile.on('end', () => {
     console.log('Processed Batch File');
 });
 
-const updater = (line) => PREFIX + line.replace('%APPNAME%', appName);
+const updater = (line) => PREFIX + line.replace('%APPNAME%', appName).replace('%APPVERSION%', appVer);
 
 const prefixed = batFile.pipe(lineUpdater(updater));
 
@@ -102,7 +102,7 @@ function getConfig() {
 function getArgConfig(appArg, appNameArg) {
     const appPath = path.resolve(appArg);
     const appName = appNameArg ? appNameArg : path.basename(appPath);
-    return { appName, appPath };
+    return { appName, appPath, appVer: '1.0.0' };
 }
 
 function getRCConfig() {
@@ -110,8 +110,7 @@ function getRCConfig() {
     try {
         if (fs.existsSync(rcFile)) {
             const rcData = JSON.parse(fs.readFileSync(rcFile, 'utf-8'));
-            const appName = rcData.name;
-            const appRelPath = rcData.path;
+            const { name: appName, path: appRelPath, version: appVer} = rcData;
             if (typeof appName === 'undefined'
                 || appName.length === 0 
                 || typeof appRelPath === 'undefined'
@@ -120,11 +119,11 @@ function getRCConfig() {
                 throw 'Empty Config';
             }
             const appPath = path.resolve(appRelPath);
-            return { appPath, appName };
+            return { appPath, appName, appVer };
         }
         throw 'Config file not found';
     } catch (ex) {
-        console.log('create a owac.rc JSON file in the root of directory with a "name" and "path" entry');
+        console.log('create a owac.rc JSON file in the root of directory with format: {"name": "app","path": "src","version": "1.0.0"}');
         console.error(ex);
         process.exit(1);
     }
