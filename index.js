@@ -8,14 +8,8 @@ const os = require('os');
 
 const PREFIX = ';;;===,,, ';
 
-const { appName, appPath, appVer } = getConfig();
-console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
-
-const appPages = fs.readdirSync(appPath, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory())
-    .map(({ name }) => ({ name, path: path.join(appPath, name) }));
-
-const menuConfig = getMenuConfig(appName, appPages);
+const { appName, appVer, menuConfig } = getConfig();
+// console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
 
 const menuContent = getMenuContent(menuConfig);
 
@@ -41,12 +35,12 @@ const prefixed = batFile.pipe(lineUpdater(updater));
 
 prefixed.on('end', () => {
     console.log('Creating Zip and appending to Batch File');
-    zipApp(appPages, menuContent, output);
+    zipApp(menuConfig, menuContent, output);
 });
 
 prefixed.pipe(output, { end: false });
 
-function zipApp(appPages, menuContent, output) {
+function zipApp(menuConfig, menuContent, output) {
     const archive = archiver('tar', { zlib: { level: 9 }, gzip: true });
 
     output.on('close', () => {
@@ -63,10 +57,10 @@ function zipApp(appPages, menuContent, output) {
 
     archive.pipe(output);
 
-    appPages.forEach(({path, name}) => archive.directory(path, name));
+    menuConfig.items.filter(item => item.isFolder).forEach(({ folderPath, name }) => archive.directory(folderPath, name));
 
     archive.append(menuContent, { name: 'menu.html' });
-    
+
     archive.file(__dirname + '/assets/CreateShortcut.vbs', { name: 'CreateShortcut.vbs' });
 
     archive.finalize();
@@ -113,7 +107,11 @@ function getConfig() {
 function getArgConfig(appArg, appNameArg) {
     const appPath = path.resolve(appArg);
     const appName = appNameArg ? appNameArg : path.basename(appPath);
-    return { appName, appPath, appVer: '1.0.0' };
+    const items = fs.readdirSync(appPath, { withFileTypes: true })
+        .filter(dirent => dirent.isDirectory())
+        .map(({ name }) => getMenuItem(name, appPath));
+
+    return { appName, appPath, appVer: '1.0.0', menuConfig: {title: appName, items} };
 }
 
 function getRCConfig() {
@@ -121,16 +119,25 @@ function getRCConfig() {
     try {
         if (fs.existsSync(rcFile)) {
             const rcData = JSON.parse(fs.readFileSync(rcFile, 'utf-8'));
-            const { name: appName, path: appRelPath, version: appVer} = rcData;
+            const { name: appName, path: appRelPath, version: appVer, menu: menuConfig } = rcData;
             if (typeof appName === 'undefined'
-                || appName.length === 0 
+                || appName.length === 0
                 || typeof appRelPath === 'undefined'
                 || appRelPath.length === 0
             ) {
                 throw 'Empty Config';
             }
             const appPath = path.resolve(appRelPath);
-            return { appPath, appName, appVer };
+            menuConfig.items = menuConfig.items.map(item => {
+                if (item.isFolder !== false) {
+                    const folderPath = path.resolve(appPath, item.path);
+                    const hrefPath = `${item.name}/index.html`;
+                    const isFolder = true;
+                    return { ...item, folderPath, hrefPath, isFolder, subName: '' };
+                }
+                return { ...item, hrefPath: item.path, subName: '(External Link)' };
+            });
+            return { appPath, appName, appVer, menuConfig };
         }
         throw 'Config file not found';
     } catch (ex) {
@@ -140,17 +147,22 @@ function getRCConfig() {
     }
 }
 
-function getMenuConfig(appName, appPages) {
-    const config = { title: appName, items: [] };
-    config.items = appPages.map(({ name }) => ({ name, path: name }));
-    return config;
+function getMenuItem(name, appPath) {
+    return {
+        name,
+        path: name,
+        folderPath: path.resolve(appPath, name),
+        hrefPath: `${name}/index.html`,
+        isFolder: true,
+        subName: '',
+    };
 }
 
-function getMenuContent({title, items}) {
+function getMenuContent({ title, items }) {
     const hrefBuilder = (text, href) => `<a href="${href}">${text}</a>`;
     const liBuilder = content => `<li>${content}</li>`;
     const ulBuilder = content => `<ul>${content}</ul>`;
-    const liContents = items.map(({ name, path }) => hrefBuilder(name, `${path}/index.html`)).map(liBuilder).join('');
+    const liContents = items.map(({ name, hrefPath, subName }) => `${hrefBuilder(name, hrefPath)}${subName}`).map(liBuilder).join('');
     const ulContent = ulBuilder(liContents);
     return `<html><head><title>${title}</title></head><body><h1>${title}</h1>${ulContent}</body></html>`;
 }

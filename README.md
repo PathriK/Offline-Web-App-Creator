@@ -24,7 +24,7 @@ owac folderpath appname
 - `appname` is optional. If not given, the folder name in the `folderpath` will be taken as App Name
 
 *Note:*
-- Creates a simple `menu.html`file. That lists all the folders inside `folderpath`
+- Creates a simple `menu.html` file. It lists all the folders inside `folderpath`
 - The version is always `1.0.0`. It can not be changed and app can't be "re-installed"
 
 2. Using a config file:
@@ -37,12 +37,27 @@ and the current directory should have a 'owac.rc' file in the following format:
 
 ```json
 {
-  "name": "app",
+  "name": "AAA",
   "path": "src",
-  "version": "1.0.0"
+  "version": "1.0.0",
+  "menu": {
+    "title": "AAA",
+    "items": [
+      {
+        "name": "App 1",
+        "path": "app1"
+      }
+      {
+        "name": "Google",
+        "path": "https://www.google.com",
+        "isFolder": false
+      }
+    ]
+  }
 }
+
 ```
 
 *Note:*
-- When using the '.rc' format of the command, everything is mandatory.
-- Similar to the 1st version, it creates a simple menu file
+- When using the '.rc' format of the command, everything is mandatory
+- Similar to the 1st version, it creates a simple menu file. The items are controlled by `menu.items` from the .rc file
