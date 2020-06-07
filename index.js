@@ -8,12 +8,20 @@ const os = require('os');
 
 const PREFIX = ';;;===,,, ';
 
-const { appName, appVer, menuConfig } = getConfig();
+const initArg = process.argv[2];
+
+if (initArg === 'init') {
+    console.log('creating rc file');
+    fs.copyFileSync(__dirname + '/assets/owac.rc', './owac.rc');
+    process.exit(0);
+}
+
+const { appName, distPath, appVer, menuConfig } = getConfig();
 // console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
 
 const menuContent = getMenuContent(menuConfig);
-
-const output = fs.createWriteStream('./installer_dist.bat', {
+fs.mkdirSync(distPath, { recursive: true });
+const output = fs.createWriteStream(distPath + '/installer_dist_v' + appVer + '.bat', {
     encoding: 'binary',
 });
 
@@ -111,7 +119,7 @@ function getArgConfig(appArg, appNameArg) {
         .filter(dirent => dirent.isDirectory())
         .map(({ name }) => getMenuItem(name, appPath));
 
-    return { appName, appPath, appVer: '1.0.0', menuConfig: {title: appName, items} };
+    return { appName, appPath, distPath: 'dist', appVer: '1.0.0', menuConfig: { title: appName, items } };
 }
 
 function getRCConfig() {
@@ -119,7 +127,7 @@ function getRCConfig() {
     try {
         if (fs.existsSync(rcFile)) {
             const rcData = JSON.parse(fs.readFileSync(rcFile, 'utf-8'));
-            const { name: appName, path: appRelPath, version: appVer, menu: menuConfig } = rcData;
+            const { name: appName, srcPath: appRelPath, distPath: distRelPath, version: appVer, menu: menuConfig } = rcData;
             if (typeof appName === 'undefined'
                 || appName.length === 0
                 || typeof appRelPath === 'undefined'
@@ -128,6 +136,7 @@ function getRCConfig() {
                 throw 'Empty Config';
             }
             const appPath = path.resolve(appRelPath);
+            const distPath = path.resolve(distRelPath);
             menuConfig.items = menuConfig.items.map(item => {
                 if (item.isFolder !== false) {
                     const folderPath = path.resolve(appPath, item.path);
@@ -137,7 +146,7 @@ function getRCConfig() {
                 }
                 return { ...item, hrefPath: item.path, subName: '(External Link)' };
             });
-            return { appPath, appName, appVer, menuConfig };
+            return { appPath, distPath, appName, appVer, menuConfig };
         }
         throw 'Config file not found';
     } catch (ex) {

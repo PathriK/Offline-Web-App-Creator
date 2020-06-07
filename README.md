@@ -46,7 +46,7 @@ and the current directory should have a 'owac.rc' file in the following format:
       {
         "name": "App 1",
         "path": "app1"
-      }
+      },
       {
         "name": "Google",
         "path": "https://www.google.com",
@@ -57,6 +57,14 @@ and the current directory should have a 'owac.rc' file in the following format:
 }
 
 ```
+
+The file can be created using the following command:
+
+```shell
+owac init
+```
+
+This creates a sample config file with sample values. It needs to be edited as needed.
 
 *Note:*
 - When using the '.rc' format of the command, everything is mandatory

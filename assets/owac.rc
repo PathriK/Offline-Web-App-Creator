@@ -1,0 +1,20 @@
+{
+  "name": "App Name",
+  "srcPath": "src (Folder name containing all sub apps)",
+  "distPath": "dist (Folder name where dist bat will be written)",
+  "version": "1.0.0",
+  "menu": {
+    "title": "App Title",
+    "items": [
+      {
+        "name": "Sub App Name 1",
+        "path": "App1(relative path from the 'src' folder)"
+      },
+      {
+        "name": "Sub App Name 2",
+        "path": "https://www.google.com",
+        "isFolder": false
+      }
+    ]
+  }
+}
