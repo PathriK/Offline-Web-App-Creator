@@ -8,7 +8,7 @@ DesktopPath = Shell.SpecialFolders("Desktop")
 ProgramFilesPath = Shell.ExpandEnvironmentStrings("%ProgramFiles(x86)%")
 ChromePath = ProgramFilesPath & "\Google\Chrome\Application\chrome.exe"
 Set link = Shell.CreateShortcut(DesktopPath & "\" & AppName & ".lnk")
-link.Arguments = "--user-data-dir=" & AppUserDir & " --app=" & AppsMenu
+link.Arguments = "--user-data-dir=""" & AppUserDir & """ --app=""" & AppsMenu & """"
 link.Description = AppName & " App Shortcut"
 ' link.HotKey = "CTRL+ALT+SHIFT+X"
 ' link.IconLocation = "app.exe,1"

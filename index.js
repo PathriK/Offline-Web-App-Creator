@@ -26,7 +26,8 @@ const output = fs.createWriteStream(distPath + '/installer_dist_v' + appVer + '.
 });
 
 output.write(PREFIX + '@ECHO OFF' + os.EOL);
-output.write(PREFIX + 'SET APPNAME="' + appName + '"' + os.EOL);
+output.write(PREFIX + 'SET "APPNAME=' + appName + '"' + os.EOL);
+output.write(PREFIX + 'SET "APPVERSION=' + appVer + '"' + os.EOL);
 
 const batFile = fs.createReadStream(__dirname + '/assets/installer.bat', {
     flags: 'r',
@@ -37,7 +38,7 @@ batFile.on('end', () => {
     console.log('Processed Batch File');
 });
 
-const updater = (line) => PREFIX + line.replace('%APPNAME%', appName).replace('%APPVERSION%', appVer);
+const updater = (line) => PREFIX + line;
 
 const prefixed = batFile.pipe(lineUpdater(updater));
 
