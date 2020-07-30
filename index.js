@@ -16,6 +16,11 @@ if (initArg === 'init') {
     process.exit(0);
 }
 
+if (initArg === 'version') {
+    console.log(require(__dirname + '/package.json').version);
+    process.exit(0);
+}
+
 const { appName, distPath, appVer, menuConfig } = getConfig();
 // console.log(`appName: ${appName} | appPath: ${appPath} | appVer: ${appVer}`);
 

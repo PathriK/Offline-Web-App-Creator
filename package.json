@@ -1,6 +1,6 @@
 {
   "name": "owac",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "Offline Web App Creator",
   "homepage": "https://github.com/PathriK/Offline-Web-App-Creator",
   "main": "index.js",

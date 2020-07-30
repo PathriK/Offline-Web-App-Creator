@@ -69,3 +69,9 @@ This creates a sample config file with sample values. It needs to be edited as n
 *Note:*
 - When using the '.rc' format of the command, everything is mandatory
 - Similar to the 1st version, it creates a simple menu file. The items are controlled by `menu.items` from the .rc file
+
+**To get currently installed version run**
+
+```shell
+owac version
+```
